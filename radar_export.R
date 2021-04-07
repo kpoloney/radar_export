@@ -54,5 +54,28 @@ for (i in 1:length(pid)) {
   } else
   writeBin(content(r), content_path)
 
+}
+
+#get thumbnails
+library(jpeg)
+
+for (i in 1:length(pid)) {
   
+  tn_url <- paste0(base_url, "/islandora/object/", pid[i], 
+                   "/datastream/TN/download")
+  t <- GET(tn_url)
+  
+  if(headers(t)['content-length'] <= 0) { 
+    print(pid[i])
+    next 
+  } else
+    
+    if(headers(t)['content-type'] != "image/jpeg"){
+      print(pid[i])
+      next
+    } else
+      
+      filename <- paste0(gsub(":", "", pid[i]), "_TN", ".jpeg")
+  
+  writeJPEG(content(t), filename)
 }
