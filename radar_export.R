@@ -1,11 +1,11 @@
-
 library(dplyr)
 library(jsonlite)
 library(httr)
 library(readr)
 
 #read in the csv metadata export
-isl <- read.csv("COMPLETE_metadata_tidy.csv", stringsAsFactors = F)
+isl <- read.csv("radar_metadata.csv", stringsAsFactors = F)
+
 
 # remove collections going to summit or digital collections
 sound <- isl %>% 
@@ -42,12 +42,16 @@ for (i in 1:length(pid)) {
   content_disp <- as.character(headers(r)['content-disposition'])
   filename <- gsub('"', '', regmatches(content_disp, gregexpr('"[^"]*"', content_disp))[[1]])
   #remove any unwanted characters
-  filename <- gsub('/|:|"|\\s|[*]', "", filename)
+  filename <- gsub('/|:|#|&|"|\\s|[*]', "", filename)
+  filename <- gsub("^SFU-", "", filename)
   
   id <- gsub(":", "", pid[i])
   
   content_path <- paste0(id, "_", filename)
   
+  if (grepl("csv$", filename)) {
+    write.csv(content(r), content_path, row.names = F)
+  } else
   writeBin(content(r), content_path)
 
   
