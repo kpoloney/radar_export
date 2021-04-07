@@ -65,17 +65,34 @@ for (i in 1:length(pid)) {
                    "/datastream/TN/download")
   t <- GET(tn_url)
   
-  if(headers(t)['content-length'] <= 0) { 
+  if(headers(t)['content-length'] <= 0 | headers(t)['content-type'] != "image/jpeg") { 
     print(pid[i])
     next 
   } else
     
-    if(headers(t)['content-type'] != "image/jpeg"){
-      print(pid[i])
-      next
-    } else
-      
-      filename <- paste0(gsub(":", "", pid[i]), "_TN", ".jpeg")
+  filename <- paste0(gsub(":", "", pid[i]), "_TN", ".jpeg")
   
   writeJPEG(content(t), filename)
+}
+
+#get MP3s for soundscapes
+sound <- sound %>% filter(RELS_EXT_hasModel_uri_s != "info:fedora/islandora:collectionCModel")
+s_pid <- as.list(sound$PID)
+
+for (i in 1:length(s_pid)) {
+  
+  m_url <- paste0(base_url, "/islandora/object/", s_pid[i], 
+                  "/datastream/PROXY_MP3/download")
+  
+  m <- GET(m_url)
+  
+  if (headers(m)['content-type'] != 'audio/mpeg' | headers(m)['content-length'] <= 0) {
+    print(s_pid[i])
+    next
+  } else
+    
+    filename <- paste0(gsub(":", "", s_pid[i]), "_MP3", ".mp3")
+  
+  writeBin(content(m), filename)
+  
 }
