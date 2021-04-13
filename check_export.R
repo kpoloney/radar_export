@@ -7,6 +7,9 @@ filepath <- getwd()
 #Get vector of filenames. Recursive = T means that it includes files in directory folders.
 dir <- list.files(filepath, recursive = T)
 
+#remove folder names
+dir <- gsub(".+/", "", dir)
+
 #select the PIDs from the file names
 file_pids <- stringr::str_extract(dir, "^[[:alpha:]]{3,}[[:digit:]]{2,}_")
 file_pids <- gsub("_", "", file_pids) %>% as.data.frame()
